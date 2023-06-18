@@ -1,0 +1,19 @@
+@startuml
+title OpenID Connect Hybrid Flow
+
+actor User
+participant Client
+participant Authorization_Server
+participant Resource_Server
+
+User -> Client : (1) Initiate Authentication
+Client -> Authorization_Server : (2) Authentication Request
+Authorization_Server --> User : (3) Authentication and Consent
+User --> Authorization_Server : (4) Consent Granted
+Authorization_Server -> Client : (5) Authorization Code
+Client -> Authorization_Server : (6) Token Request (Authorization Code)
+Authorization_Server -> Client : (7) Access Token + ID Token
+Client -> Resource_Server : (8) Resource Request (Access Token)
+Resource_Server -> Client : (9) Resource
+
+@enduml

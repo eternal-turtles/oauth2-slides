@@ -1,0 +1,38 @@
+= OIDC PKCE Grant
+
+[plantuml, openid_connect_pkce_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Identity Provider" as IdP
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Generates Code Verifier and Code Challenge
+Client -> AuthServer: 3. Sends Authorization Request with PKCE parameters
+AuthServer --> User: 4. Presents Authorization Page
+User --> AuthServer: 5. Approves Authorization
+AuthServer --> Client: 6. Sends Authorization Code
+Client -> AuthServer: 7. Sends Token Request with Authorization Code, Code Verifier, and Code Challenge
+AuthServer --> Client: 8. Sends ID Token and Access Token
+Client -> Server: 9. Requests Protected Resource with Access Token
+Server --> Client: 10. Sends Protected Resource
+@enduml
+----
+
+== OIDC PKCE Grant Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client generates a Code Verifier and transforms it into a Code Challenge using a cryptographic hash function.
+3. The Client sends an authorization request to the Authorization Server, including the PKCE parameters (Code Challenge and Method).
+4. The Authorization Server presents an authorization page to the User.
+5. The User approves the authorization request.
+6. The Authorization Server sends an authorization code to the Client.
+7. The Client sends a token request to the Authorization Server, including the authorization code, Code Verifier, and Code Challenge.
+8. The Authorization Server sends an ID Token (containing identity information) and an Access Token to the Client.
+9. The Client requests a protected resource from the Resource Server using the access token.
+10. The Resource Server sends the protected resource to the Client.
+
+The OpenID Connect PKCE (Proof Key for Code Exchange) Grant is an extension of the OAuth2 PKCE Grant that adds identity-related functionalities. It introduces an additional layer of security by using a dynamic secret (Code Verifier) that is transformed into a Code Challenge, ensuring the Client's authenticity during the token exchange process. This flow is designed to protect against authorization code interception attacks and provides enhanced security for mobile and public client applications.

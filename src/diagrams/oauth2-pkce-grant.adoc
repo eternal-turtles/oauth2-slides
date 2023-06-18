@@ -1,0 +1,36 @@
+= OAuth2 PKCE (Proof Key for Code Exchange) Grant
+
+[plantuml, pkce_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Resource Owner" as Owner
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Sends Authorization Request with PKCE parameters
+AuthServer --> User: 3. Presents Authorization Page
+User --> AuthServer: 4. Approves Authorization
+AuthServer --> Client: 5. Sends Authorization Code
+Client -> AuthServer: 6. Sends Token Request with PKCE parameters
+AuthServer --> Client: 7. Sends Access Token
+Client -> Server: 8. Requests Protected Resource with Access Token
+Server --> Client: 9. Sends Protected Resource
+@enduml
+----
+
+== PKCE (Proof Key for Code Exchange) Grant Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client sends an authorization request to the Authorization Server, including PKCE parameters (code verifier and code challenge).
+3. The Authorization Server presents an authorization page to the User.
+4. The User approves the authorization request.
+5. The Authorization Server sends an authorization code to the Client.
+6. The Client sends a token request to the Authorization Server, including PKCE parameters.
+7. The Authorization Server sends an access token to the Client.
+8. The Client requests a protected resource from the Resource Server using the access token.
+9. The Resource Server sends the protected resource to the Client.
+
+The OAuth2 PKCE Grant was developed as an extension to the OAuth2 Authorization Code Grant to enhance the security of mobile and native applications. It addresses the inherent vulnerability of the authorization code being intercepted during the authorization process by introducing a code verifier and code challenge. This ensures that even if the authorization code is intercepted, it cannot be exchanged for an access token without the original code verifier. The PKCE Grant is recommended for applications that cannot securely store a client secret, such as public clients running on mobile or desktop platforms. By utilizing a dynamically generated code challenge, it provides an additional layer of security in the authorization flow.

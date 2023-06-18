@@ -1,0 +1,36 @@
+= OIDC Authorization Code Grant
+
+[plantuml, openid_connect_auth_code_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Identity Provider" as IdP
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Sends Authorization Request with OpenID Connect scope
+AuthServer --> User: 3. Presents Authorization Page
+User --> AuthServer: 4. Approves Authorization
+AuthServer --> Client: 5. Sends Authorization Code
+Client -> AuthServer: 6. Sends Token Request with Authorization Code
+AuthServer --> Client: 7. Sends ID Token and Access Token
+Client -> Server: 8. Requests Protected Resource with Access Token
+Server --> Client: 9. Sends Protected Resource
+@enduml
+----
+
+== OIDC Authorization Code Grant Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client sends an authorization request to the Authorization Server, including OpenID Connect scope to request identity information.
+3. The Authorization Server presents an authorization page to the User.
+4. The User approves the authorization request.
+5. The Authorization Server sends an authorization code to the Client.
+6. The Client sends a token request to the Authorization Server, including the authorization code.
+7. The Authorization Server sends an ID Token (containing identity information) and an Access Token to the Client.
+8. The Client requests a protected resource from the Resource Server using the access token.
+9. The Resource Server sends the protected resource to the Client.
+
+The OpenID Connect Authorization Code Grant extends the OAuth2 Authorization Code Grant by including the issuance of an ID Token, which contains identity information about the authenticated user. This allows the Client to obtain both access to protected resources and user identity information in a single roundtrip. The OpenID Connect flow is designed for authentication purposes and provides a standardized way to obtain user identity and authentication details. It adds an additional layer on top of the OAuth2 protocol to support identity-related functionalities.

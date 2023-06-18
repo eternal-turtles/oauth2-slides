@@ -1,0 +1,34 @@
+{
+  "name": "oauth2-slides",
+  "version": "1.0.0",
+  "description": "OAuth2 & OpenID Connect Overview",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm run clean && node build.js",
+    "clean": "node clean.js",
+    "dev": "nodemon --watch src --ext adoc,png,gif,jpg,jpeg,svg --exec \"npm run build && node server.js\"",
+    "start": "npm run dev",
+    "deploy": ""
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules",
+      "dist"
+    ],
+    "delay": 500
+  },
+  "author": "Jack Newton",
+  "license": "MIT",
+  "dependencies": {
+    "@asciidoctor/reveal.js": "^5.0.0-rc.1",
+    "asciidoctor": "^2.2.6",
+    "mkdirp": "^3.0.1"
+  },
+  "devDependencies": {
+    "connect-livereload": "^0.6.1",
+    "express": "^4.18.2",
+    "livereload": "^0.9.3",
+    "nodemon": "^2.0.22"
+  }
+}

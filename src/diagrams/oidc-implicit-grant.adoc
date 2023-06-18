@@ -1,0 +1,34 @@
+= OIDC Implicit Grant
+
+[plantuml, openid_connect_implicit_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Identity Provider" as IdP
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Sends Authorization Request
+AuthServer --> User: 3. Presents Authorization Page
+User --> AuthServer: 4. Approves Authorization
+AuthServer --> Client: 5. Sends ID Token and Access Token
+Client -> Server: 6. Requests Protected Resource with Access Token
+Server --> Client: 7. Sends Protected Resource
+@enduml
+----
+
+== OIDC Implicit Grant Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client sends an authorization request to the Authorization Server.
+3. The Authorization Server presents an authorization page to the User.
+4. The User approves the authorization request.
+5. The Authorization Server sends an ID Token (containing identity information) and an Access Token directly to the Client.
+6. The Client requests a protected resource from the Resource Server using the access token.
+7. The Resource Server sends the protected resource to the Client.
+
+The OpenID Connect Implicit Grant is a simplified flow specifically designed for browser-based applications. It allows the Client to obtain an ID Token and Access Token directly from the Authorization Server, without an intermediate authorization code exchange step. The ID Token contains identity information about the authenticated User. This grant type is suitable for scenarios where the Client application is implemented using JavaScript and does not have a server-side component.
+
+Regarding the relationship between the Implicit Grant and the PKCE (Proof Key for Code Exchange) Grant, it's important to note that the PKCE Grant was introduced as a more secure alternative to the Implicit Grant. The Implicit Grant is considered less secure because it delivers tokens directly to the Client through the browser, potentially exposing them to unauthorized access. On the other hand, the PKCE Grant provides additional security measures by utilizing a dynamic secret (Code Verifier) and transforming it into a Code Challenge during the authorization process. As a result, the Implicit Grant has been deprecated in favor of the PKCE Grant for enhanced security and protection against certain attacks.

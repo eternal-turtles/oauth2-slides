@@ -1,0 +1,31 @@
+= OAuth2 Implicit Grant
+
+[plantuml, implicit_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Sends Authorization Request
+AuthServer --> User: 3. Presents Authorization Page
+User --> AuthServer: 4. Enters Credentials and Approves Authorization
+AuthServer --> Client: 5. Sends Access Token
+Client -> Server: 6. Requests Protected Resource
+Server --> Client: 7. Sends Protected Resource
+@enduml
+----
+
+== Implicit Grant Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client sends an authorization request to the Authorization Server.
+3. The Authorization Server presents an authorization page to the User.
+4. The User enters their credentials and approves the authorization request.
+5. The Authorization Server sends an access token directly to the Client.
+6. The Client requests a protected resource from the Resource Server using the access token.
+7. The Resource Server sends the protected resource to the Client.
+
+In the Implicit grant, the access token is issued directly to the Client in the initial response from the Authorization Server. This grant type is typically used in browser-based applications or mobile apps where the Client can securely receive the access token without the need for additional server-side communication.

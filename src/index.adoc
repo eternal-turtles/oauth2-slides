@@ -1,0 +1,1383 @@
+// OAuth2 Primer (c) by Jack Newton
+//
+// OAuth2 Primer is licensed under a
+// Creative Commons 4.0 International License.
+//
+// You should have received a copy of the license along with this
+// work. If not, see <https://creativecommons.org/licenses/by/4.0/.>
+
+= OAuth2 Primer
+
+== Welcome
+
+image:images/succession-make-yourself-at-home.gif[Make Yourself at Home]
+
+== Agenda
+
+1. Provide context and try to explain what problems OAuth2 solves
+2. OAuth2 concepts
+3. OAuth2 flows
+4. Pause for questions
+5. OpenID Connect concepts
+6. OpenID Connect flows
+
+== Agenda
+
+image:images/mansplaining.webp[Mansplaining]
+
+== OAuth2?
+
+[.columns]
+
+=== Grant Permissions to Apps
+
+[.column]
+image:images/github-authorize-prompt.png[GitHub Authorization Prompt]
+// source: https://stackoverflow.com/questions/52806946/python-oauth2-server-with-social-networks-for-a-restfull-api
+
+[.column]
+image:images/Vine-Authorize-App-2730640606.png[Twitter Authorization PrOompt]
+// source: https://www.addictivetips.com/web/twitter-releases-vine-for-web-with-a-full-screen-tv-mode-more/
+
+[.column]
+image:images/Google_Auth_Dialog.png[Google Authorization Prompt]
+// source: https://developers.google.com/tasks/oauth-authorization-callback-handler
+
+[.columns]
+
+=== Single Sign On
+
+[.column]
+image:images/social-login.png[Social Login]
+
+[.column]
+image:images/one_does_not_simply_login_with_oauth.png[Legolas explains OAuth]
+
+== In Context
+
+OAuth2 and OpenID Connect are decentralized protocols that have silently transformed how we use the web and how we develop applications.
+
+Let's explore from where these protocols originate, and how they can accomodate a wide array of authorization use-cases.
+
+=== Web 2.0
+
+In Web 2.0, the emphasis shifted from static web pages to dynamic and participatory platforms, fostering user engagement, collaboration, and social interaction.
+
+The emergence of web applications, with more logic on both the server and the client, presented many new security and practical challenges for which there were few established patterns.
+
+=== Challenges
+
+==== Password Sharing
+
+To grant account access to a third-party client, users were sometimes required to share their usernames and passwords with the third-party applications.
+
+=== Challenges
+
+==== Wheel Reinvention
+
+Developers don't need to reinvent systems to manage clients, such as API keys or other token-based approaches.
+
+Third-party developers benefit from standardization as it makes writing and understanding clients simpler.
+
+=== Challenges
+
+==== Fragmentation
+
+Lack of standardization hurts businesses and users:
+
+* increased development costs
+* hindered application interoperability and more data silos
+* elevated the risk of security exploits
+
+// hooli.gif ??
+
+== Legacy Protocols
+
+=== OAuth 1
+
+* OAuth 1.0a released in 2007 by IETF Web Authorization (oauth) Working Group
+* Standardized protocol for granting limited access to user data without sharing credentials
+* Users grant tokens to clients scoped to specific, limited permissions
+
+=== OAuth 1
+
+==== Drawbacks
+
+* Requires the client to store and manage request-tokens and access-tokens
+* Relatively complex due to cryptographic requirements
+
+// tombstone.gif
+
+=== OpenID
+
+* OpenID 2.0 specification published by OpenID Foundation in December 2005
+* Decentralized authentication protocol (Single Sign On) for the web
+* Universal SSO with OpenID login button
+* Not to be confused with OpenID Connect, a later set of specifications built on top of OAuth2
+
+=== OpenID
+
+image:images/openid-spec.png[OpenID spec]
+
+=== OpenID
+
+image:images/sf-login-openid.png[SourceForge OpenID Login]
+// Source: https://cweiske.de/tagebuch/images/sourceforge-openid/sf-login-openid.png
+
+=== OpenID
+
+image:images/openid_openid_connect.png[Drake knows that OpenID Connect is the latest and greatest,320]
+
+// tombstone.png
+
+=== SAML
+
+* Designed for enterprise single-sign-on and authorization.
+
+=== SAML
+
+==== Drawbacks
+
+* Protocol complexity
+* XML-based nature
+* Certificate management and cryptographic requirements
+* Centralized architecture not designed for scale
+
+=== SAML
+
+image::https://www.okta.com/sites/default/files/styles/1640w_scaled/public/media/image/2020-07/Okta-OAN_SSO1.png?itok=-0o3cP5t[Okta dashboard]
+
+// boring.gif
+
+== OAuth 2.0
+
+* Specification published 2012 by Web Authorization (oauth) Working Group
+* Users grant tokens to clients scoped to specific, limited permissions
+* More flexibile than OAuth1: more HTTP request/response sequences ("flows")
+* Easier to implement than OAuth1
+* HTTPS a prerequisite unlike OAuth1
+
+=== OAuth 2.0
+
+RFC 6749: https://www.rfc-editor.org/rfc/rfc6749.html
+
+image::images/oauth2-spec.png[OAuth 2.0 RFC]
+
+=== Internet Engineering Task Force (IETF)
+
+// Wikipedia: https://en.wikipedia.org/wiki/Internet_Engineering_Task_Force
+
+image:images/ietf-wikipedia.png[IETF Wikipedia page]
+
+* volunteer-basis standards body
+* organized around working groups
+* working groups publishes Request for Comments (RFC) specification documents
+* consensus-based; collaborative and inclusive process
+
+=== OAuth Working Group
+
+* Goals included providing secure, standardized access to user data without password sharing
+* The group is comprised professionals from wide array of companies and institutions
+
+=== OAuth Working Group
+
+* The OAuth2 standardization process involved input from both platform and third-party developers
+
+=== OpenID Connect: Identity Extension for OAuth2
+
+* Created by the OpenID Foundation (not IETF)
+* Problem: OAuth2 is not an SSO protocol; does not even specify how to authenticate or identify users
+* Enables applications to not only authorize access to resources but also authenticate and verify the identity of users
+
+== OAuth2 Terminology
+
+== Actors
+
+* Resource Owner
+* Resource Server
+* Authorization Server
+* Client
+
+=== Actors
+
+==== Resource Owner
+
+The entity that can grant access to a protected resource, typically a human user
+
+=== Actors
+
+==== Resource Server
+
+The server that hosts the protected resources
+
+Protects resources using bearer-token authorization
+
+=== Actors
+
+==== Authorization Server
+
+The server that authenticates the resource owner and issues access tokens to the client
+
+=== Actors
+
+==== Client
+
+* Requests access to a protected resource on behalf of the resource owner
+* Uses the access token obtained from the Authorization Server to access resource(s) at Resource Server
+* May be third-party or first-party.
+
+== Grants
+
+A grant in OAuth2 refers to a specific authorization flow or mechanism through which a client obtains an access token to access protected resources on behalf of a user.
+
+=== Grants
+
+image:images/its_simple_acquire_the_token.png[It\'s simple: acquire the token,480]
+
+== Parameters
+
+=== grant_type
+
+The `grant_type` parameter specifies the type of grant being used by the client to obtain an access token, indicating the authorization flow and grant type that the client application is requesting.
+
+=== redirect_uri
+
+The `redirect_uri` query parameter is used to specify the URI where the authorization server redirects the user-agent after completing the authentication or authorization process, allowing the client application to receive the response and continue with the flow.
+
+=== scope
+
+In OAuth2, the `scope` parameter is used to define the specific permissions and access rights granted to an access token, allowing the client to access certain resources or perform specific actions on behalf of the user.
+
+=== scope
+
+==== Example
+
+Example authorization request with scopes `offline_access`, `profile`, `email`, `read`:
+
+    GET /authorize?
+      response_type=code&
+      client_id=client123&
+      redirect_uri=https://client.example.com/callback&
+      scope=offline_access%20profile%20email%20read&
+      state=7fbc1e737993167e75f5f7940d8213aa6886591d
+
+=== scope
+
+==== Examples
+
+    read: Grants read-only access to resources.
+    write: Grants write (modify) access to resources.
+    profile: Grants access to user profile information.
+    email: Grants access to the user's email address.
+    offline_access: Grants the ability to obtain a refresh token for long-lasting access.
+    openid: Enables the client to request ID token issuance as part of the OAuth flow.
+    contacts: Grants access to the user's contact list.
+    calendar: Grants access to the user's calendar events.
+    photos: Grants access to the user's photo albums or galleries.
+    messages: Grants access to the user's messages or inbox.
+
+=== scope
+
+==== offline_access
+
+The `offline_access` scope in OAuth2 allows an application to obtain a refresh token, enabling it to access protected resources on behalf of the user even when they are not actively present or authenticated.
+
+=== state
+
+* The `state` param is a random string generated by the client
+* Cross Site Request Forgery mitigation
+* Typically, the client stores state string with the user session data or sets a cookie named "_state"
+
+=== state
+
+* The authorization-server redirects the user to client callback URL with state param and authorization-code
+* The client checks that the state string in redirect matches stored state string
+* If state strings do not match, client returns 400 response
+
+== Clients
+
+Clients are registered as either either:
+
+* Confidential
+* Public
+
+=== Confidential Clients
+
+Confidential clients are applications that can securely store and maintain client credentials, such as client IDs and client secrets, ensuring the confidentiality of these credentials.
+
+=== Client Authentication
+
+==== Client Credentials
+
+* `client_id` and `client_secret` sent as header using Basic Authentication (use for GET-method requests)
+* `client_id` and `client_secret` sent in POST body
+
+=== Client Authentication
+
+==== JWT Assertion
+
+* `private_key_jwt`: client generates JWT using symmetric or asymmetric key and sends in request body
+* `client_secret_jwt`: client generates JWT using client_secret as symmetric key and sends in request body
+
+=== Public Clients
+
+Public clients are applications that cannot securely store client credentials, as they are typically executed in a less secure environment, such as a web browser or a mobile app, making it challenging to protect sensitive information like client secrets.
+
+=== Public Clients
+
+image:images/cant_lose_your_client_secret_if_you_dont_have_a_client_secret.gif[You can\'t lose a client_secret if you never had one in the first place.]
+
+=== OAuth2 Tokens
+
+=== Bearer Tokens
+
+[.highlight]
+The format of tokens is not described in the OAuth 2.0 specification.
+
+   Bearer Token
+      A security token with the property that any party in possession of
+      the token (a "bearer") can use the token in any way that any other
+      party in possession of it can.  Using a bearer token does not
+      require a bearer to prove possession of cryptographic key material
+      (proof-of-possession).
+
+- https://www.rfc-editor.org/rfc/rfc6750 (Section 1.2: Terminology)
+
+=== OAuth2 Token Types
+
+2 types of tokens:
+
+* Access Tokens
+* Refresh Tokens
+
+=== Access Tokens
+
+* Used to access protected resources.
+* Sent via Authorization header.
+* `Authorization: Bearer 18e7d32e6a891b9b88e2a6beda48b917cec16d`
+
+=== Refresh Tokens
+
+Used to acquire a new access token when the existing access token nears or reaches expiration.
+
+=== OAuth2 Token Formats
+
+Two types of token formats:
+
+  1. Opaque (by reference)
+  2. JWT (by value)
+
+===  Opaque (by reference)
+
+There is basically no meaning to the token: hard-to-guess, pseudo-random bytes generated from a CSPRNG.
+
+Example:
+
+    Authorization: Bearer 18e7d32e6a891b9b88e2a6beda48b917cec16d90b91d4c4c0f
+
+=== JWT (by value)
+
+JSON + URLsafe base64.
+
+Segments separated by `.` character.
+
+    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+eyJzdWIiOiIxMjM0IiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
+TchgnZfJ9GMhTcz3xScmInmBZ5Ad3o-cD6eBSauKkGw
+
+    Header segment: {"alg":"HS256","typ":"JWT"}
+
+    Claims segment: {"sub":"1234","name":"John Doe","iat":1516239022}
+
+    Digest segment: TchgnZfJ9GMhTcz3xScmInmBZ5Ad3o-cD6eBSauKkGw
+
+=== JWT Pronunciation
+
+Some people say "jawt", while others sound out each letter.
+
+image:images/stop_trying_to_make_jawt_happen_its_not_going_to_happen.png[Jaht is not going to happen.,480]
+
+=== JWT Claims
+
+     {
+       "iss": "https://jwt-idp.example.com",
+       "sub": "mailto:mike@example.com",
+       "aud": "https://jwt-rp.example.net",
+       "nbf": 1300815780,
+       "exp": 1300819380,
+       "http://claims.example.com/member": true
+     }
+
+=== JWT Claims
+
+* `sub`: subject - (string, required)
+* `aud`: audience - (string, required)
+* `exp`: expiration - (number, required)
+* `nbf`: not before - (number, optional)
+* `iat`: issued at - (number, optional)
+* `jti`: JWT ID - (string, optional)
+
+Additional, custom claims can also be set.
+
+=== JSON Web Signature (JWS)
+
+3 segments.
+
+1. Header: contains metadata about the JWT, such as the algorithm used for signing.
+2. Payload: contains the claims or data that is being conveyed by the JWT.
+3. Signature: used to verify the authenticity of the JWT and ensure that it has not been tampered with.
+
+=== JSON Web Encryption (JWE)
+
+5 segments.
+
+1. Header
+2. Encrypted Key
+3. Initialization Vector
+4. Ciphertext
+5. Authentication Tag
+
+=== JWT RFCs
+
+* JSON Web Token (JWT): RFC 7519
+* JSON Web Key (JWK): RFC 7517
+* JSON Web Algorithms (JWA): RFC 7518
+* JWT Profile for OAuth 2.0 Client Authentication and Authorization Grants (RFC 7523)
+
+=== JWT RFCs
+
+* JSON Web Token (JWT) Bearer Token Profiles for OAuth 2.0 specification (RFC 8693)
+* OAuth 2.0 Token Revocation: RFC 7009
+* OAuth 2.0 Authorization Server Metadata: RFC 8414
+* OAuth 2.0 Token Binding: RFC 8417
+
+=== JavaScript Object Signing and Encryption (JOSE)
+
+image:images/south-park-i-dont-even-know.gif[Who is JOSE?]
+
+==  OAuth2 Endpoints
+
+* Authorization
+* Token
+* Discovery
+* JWKS
+* Dynamic Registration
+* Introspection
+* Revocation
+
+=== Authorization Endpoint
+
+The Authorization endpoint is responsible for authenticating users and obtaining their consent to access protected resources.
+
+=== Authorization Endpoint
+
+==== Example Request
+
+    Authorization: Basic Y2xpZW50MTIz:czNjcmV0
+
+    GET /authorize?
+      response_type=code&
+      redirect_uri=https://client.example.com/callback&
+      scope=offline_access%20profile%20email&
+      state=7fbc1e737993167e75f5f7940d8213aa6886591d
+
+=== Authorization Endpoint
+
+==== Example Response
+
+     HTTP/1.1 302 Found
+     Location: https://client.example.com/callback?
+       code=8624aa74153dcae3c455d883d7f19e5debf4d21842b8&
+       state=7fbc1e737993167e75f5f7940d8213aa6886591d
+
+=== Authorization Endpoint
+
+==== Request Parameters
+
+* `response_type=code` indicates the authorization code grant type.
+* `client_id` is the identifier of your client application.
+* `redirect_uri` is the URI to which the authorization server will redirect the user after successful authorization.
+
+=== Authorization Endpoint
+
+==== Request Parameters
+
+* `scope` specifies the requested scopes for accessing protected resources.
+* `state` is an optional parameter used to maintain state between the authorization request and the redirect response.
+* `redirect_uri` should be pre-registered
+
+=== Token Endpoint
+
+The Token endpoint is used to exchange the authorization code or client credentials for an access token that can be used to access protected resources.
+
+=== Token Endpoint
+
+==== Example Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+     Authorization: Basic Y2xpZW50MTIzOnMzY3JldA==
+
+     grant_type=authorization_code&
+     code=aGVsbG8gd29ybGQhIFdvYWghIFdvdyEgQW1hemluZyEgU28gY29vbCE%3D&
+     redirect_uri=https://client.example.com/callback&
+     state=a2451c990a69f18f5fb08de8b585e3e6011710b12b5198
+
+=== Token Endpoint
+
+==== Example Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=authorization_code&
+     code=aGVsbG8gd29ybGQhIFdvYWghIFdvdyEgQW1hemluZyEgU28gY29vbCE%3D&
+     client_id=client123&
+     client_secret=s3cret&
+     redirect_uri=https://client.example.com/callback&
+     state=a2451c990a69f18f5fb08de8b585e3e6011710b12b5198
+
+=== Token Endpoint
+
+==== Example Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+     Authorization: Basic Y2xpZW50MTIzOnMzY3JldA==
+
+     grant_type=authorization_code&
+     code=aGVsbG8gd29ybGQhIFdvYWghIFdvdyEgQW1hemluZyEgU28gY29vbCE%3D&
+     redirect_uri=https://client.example.com/callback&
+     client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&
+     client_assertion=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c&
+     state=a2451c990a69f18f5fb08de8b585e3e6011710b12b5198
+
+=== Token Endpoint
+
+==== Example Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=client_credentials&
+     client_id=client123&
+     client_secret=s3cret&
+     state=a2451c990a69f18f5fb08de8b585e3e6011710b12b5198&
+     scope=email%20offline_access%20read
+
+=== Token Endpoint
+
+==== Example Response
+
+     HTTP/1.1 200 OK
+     Content-Type: application/json
+
+     {
+       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+       "token_type": "Bearer",
+       "expires_in": 3600,
+       "refresh_token": "tGzv3JOkF0XG5Qx2TlKWIA"
+     }
+
+=== Token Endpoint
+
+==== Request Parameters
+
+* `response_type=code` indicates the authorization code grant type.
+* `code` is the unique token received by the client in response to a successful Authorization request
+
+=== Token Endpoint
+
+==== Request Parameters
+
+* `redirect_uri` is the URI to which the authorization server will redirect the user after successful authorization
+
+* `client_id` in combination with `client_secret` authenticates a confidential client
+
+=== Introspection Endpoint
+
+The Introspection endpoint is used by clients to verify the validity and detailed information of an access token by sending a request to the server.
+
+* Returns data about a token as JSON
+* Should work with either by-reference tokens or JWTs
+
+=== Introspection Endpoint
+
+==== Example Request
+
+     POST /introspect HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+     Authorization: Bearer 18e7d32e6a891b9b88e2a6beda48b917cec16d90b91d4c4c0f
+
+     token=G8gd29ybGQhIFdvYWghIFdvdyEgQW1hemluZyEgU28g
+
+=== Introspection Endpoint
+
+==== Example Response
+
+     {
+       "active": true,
+       "scope": "read write",
+       "client_id": "client123",
+       "username": "john.doe@example.com",
+       "token_type": "Bearer",
+       "exp": 1678930814,
+       "iat": 1678927214,
+       "sub": "1234567890"
+     }
+
+=== Revocation Endpoint
+
+The Revocation endpoint allows clients to revoke previously issued tokens, providing a mechanism to invalidate access and refresh tokens when they are no longer needed or compromised.
+
+=== Revocation Endpoint
+
+==== Example Request
+
+     POST /revoke HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+     Authorization: Bearer 18e7d32e6a891b9b88e2a6beda48b917cec16d90b91d4c4c0f
+
+     token=G8gd29ybGQhIFdvYWghIFdvdyEgQW1hemluZyEgU28g
+
+=== Revocation Endpoint
+
+==== Example Response
+
+     {
+       "status": "success"
+     }
+
+=== Discovery Endpoint
+
+The Discovery endpoint provides metadata information about the OAuth2 server, including supported endpoints and capabilities, allowing clients to dynamically discover the necessary endpoints.
+
+=== Discovery Endpoint
+
+==== Example Request
+
+     Accept: application/json
+
+     GET /.well-known/oauth-authorization-server
+
+=== Discovery Endpoint
+
+==== Example Response
+
+     HTTP/1.1 200 OK
+     Content-Type: application/json
+
+     {
+       "issuer": "https://example.com",
+       "authorization_endpoint": "https://example.com/oauth2/authorize",
+       "token_endpoint": "https://example.com/oauth2/token",
+       "revocation_endpoint": "https://example.com/oauth2/revoke",
+       "introspection_endpoint": "https://example.com/oauth2/introspect",
+       "userinfo_endpoint": "https://example.com/userinfo",
+       "jwks_uri": "https://example.com/jwks",
+       "scopes_supported": ["offline_access", "profile", "email"],
+       "response_types_supported": ["code", "token"],
+       "response_modes_supported": ["query", "fragment"],
+       "grant_types_supported": ["authorization_code", "client_credentials"],
+       "subject_types_supported": ["public"],
+       "id_token_signing_alg_values_supported": ["RS256"]
+     }
+
+=== JWKS Endpoint
+
+The JWKS (JSON Web Key Set) endpoint provides metadata related to a set of cryptographic keys held by the OAuth2 server that can be used to verify the authenticity of JSON Web Tokens (JWTs) issued by the OAuth2 server.
+
+=== JWKS Endpoint
+
+==== Example Request
+
+     Accept: application/json
+
+     GET /jwks.json
+
+=== JWKS Endpoint
+
+==== Example Response
+
+     HTTP/1.1 200 OK
+     Content-Type: application/json
+
+     {
+       "keys": [
+         {
+           "kid": "abcd1234",
+           "kty": "RSA",
+           "alg": "RS256",
+           "n": "r2D1oK8U2KLPFmQJiKdw9zjeSd1B1eHYjzSYEJdRQ8d0OhRR1UjQhAW7y2a7-69Lr7XksLCg...",
+           "e": "AQAB"
+         },
+         {
+           "kid": "efgh5678",
+           "kty": "EC",
+           "alg": "ES256",
+           "crv": "P-256",
+           "x": "ywaZaMHZn-WfP3ATq7DQ9Z44JdAJ1K44q8lTSv-6Sic",
+           "y": "yuaCQ00RA7ACOQhLL6EvNTtuDC94_qS04ejSbK2cawo"
+         }
+       ]
+     }
+
+=== Dynamic Registration Endpoint
+
+The OAuth2 Dynamic Registration endpoint enables clients to dynamically register themselves with the authorization server, allowing for streamlined client onboarding and management within the OAuth2 ecosystem.
+
+=== Dynamic Registration Endpoint
+
+==== Example Request
+
+     POST /register HTTP/1.1
+     Host: example.com
+     Content-Type: application/json
+
+     {
+       "client_name": "My Client App",
+       "redirect_uris": [
+         "https://client.example.com/callback"
+       ],
+       "grant_types": [
+         "authorization_code",
+         "refresh_token"
+       ],
+       "response_types": [
+         "code"
+       ],
+       "token_endpoint_auth_method": "client_secret_basic",
+       "scope": "openid profile"
+     }
+
+== OAuth2 Grants
+
+=== Authorization Code Flow
+
+The authorization code grant is used when a client application needs to access protected resources on behalf of a user by exchanging an authorization code obtained through user authentication for an access token.
+
+=== Authorization Code Flow
+
+image::images/oauth2-authorization-code-flow.svg[OAuth2 Authorization Code Flow: Sequence Diagram]
+
+=== Authorization Code Flow
+
+==== Potential Vulnerabilities
+
+2 issues are resolved by PKCE for confidential clients (and unresolved for standard Authorization Code grant).
+
+=== Authorization Code Flow
+
+==== Potential Vulnerabilities
+
+1. Code interception: an attacker might intercept the authorization code exchanged between the client and the authorization server
+
+2. Code replay: attackers might reuse intercepted authorization codes to obtain access tokens multiple times
+
+=== Authorization Code Flow
+
+==== In Practice, with User Sign-In
+
+image::images/oauth2-authorization-code-flow-with-user-sign-in.svg[OAuth2 Authorization Code Flow with User Sign-In: Sequence Diagram]
+
+=== Refresh Token Flow
+
+The Refresh Token grant allows a client to obtain a new access token by exchanging a refresh token, extending the validity of the client's authorization without requiring user interaction.
+
+=== Refresh Token Flow
+
+The offline_access scope in OAuth2 grants the client application the ability to obtain a refresh token during the authorization process.
+
+=== Refresh Token Flow
+
+This refresh token can be used to obtain new access tokens without requiring the user to authenticate again. By including the offline_access scope in the authorization request, the client indicates its intention to access resources on behalf of the user even when the user is not actively present or logged in.
+
+=== Refresh Token Flow
+
+image::images/oauth2-refresh-token-flow.svg[OAuth2 Refresh Token Flow: Sequence Diagram]
+
+=== Refresh Token Flow
+
+==== Example Token Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=refresh_token
+     &refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+     &client_id=client123
+     &client_secret=secret123
+
+=== Refresh Token Flow
+
+==== Example Token Response
+
+     HTTP/1.1 200 OK
+     Content-Type: application/json
+
+     {
+       "access_token": "<new_access_token>",
+       "token_type": "Bearer",
+       "expires_in": 3600,
+       "refresh_token": "<new_refresh_token>"
+     }
+
+=== Client Credentials Flow
+
+The client credentials flow is used when a client application wants to authenticate itself directly and obtain access tokens without involving a user, typically used for server-to-server communication or machine-to-machine interactions.
+
+=== Client Credentials Flow
+
+image::images/oauth2-client-credentials-flow.svg[OAuth2 Client Credentials Flow: Sequence Diagram]
+
+=== Client Credentials Flow
+
+==== Example Token Request I
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=client_credentials
+     &client_id=your-client-id
+     &client_secret=your-client-secret
+     &scope=read%20write
+
+=== Client Credentials Flow
+
+==== Example Token Request II
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=client_credentials
+     client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&
+     client_assertion=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+     &scope=read%20write
+
+=== Implicit Flow
+
+This grant type is primarily intended for clients implemented in a browser using JavaScript. It allows the client to obtain an access token directly from the authorization endpoint without the need for an intermediate authorization code.
+
+=== Implicit Flow
+
+==== Warning
+
+The Implicit flow is generally discouraged due to security vulnerabilities, such as the exposure of access tokens in the browser history or logs, making it less secure compared to other flows like the Authorization Code flow with PKCE.
+
+=== Implicit Flow
+
+image::images/oauth2-implicit-flow.svg[OAuth2 Implicit Flow: Sequence Diagram]
+
+=== Implicit Flow
+
+==== Vulnerabilities
+
+2 weaknesses, later addressed by using PKCE for public clients.
+
+=== Implicit Flow
+
+==== Example Authorization Request
+
+     GET /authorize?
+       response_type=token&
+       client_id=client123&
+       redirect_uri=https://client.example.com/callback&
+       scope=openid%20profile&
+       state=7fbc1e737993167e75f5f7940d8213aa6886591d
+
+=== Implicit Flow
+
+===== Example Authorization Response
+
+      HTTP/1.1 302 Found
+      Location: https://client.example.com/callback#access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        &token_type=bearer
+        &expires_in=3600
+        &state=7fbc1e737993167e75f5f7940d8213aa6886591d
+
+=== Implicit Flow
+
+==== Warning
+
+image::images/cancelled-rubbish.gif[Cancelled]
+
+=== Resource Owner Password Credentials Flow
+
+The resource owner password credentials grant is used when a user provides their username and password directly to the client application, which then exchanges them for an access token on behalf of the user, typically used in trusted environments.
+
+=== Resource Owner Password Credentials Flow
+
+==== Warning
+
+The Resource Owner Password Credentials (ROPC) grant in OAuth2 is discouraged due to security risks associated with exposing user credentials to the client application.
+
+=== Resource Owner Password Credentials Flow
+
+image::images/oauth2-resource-owner-password-credentials-flow.svg[Resource Owner Password Credentials Flow: Sequence Diagram]
+
+=== Resource Owner Password Credentials Flow
+
+==== Example Token Request
+
+     POST /token HTTP/1.1
+     Host: example.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=password&
+     username=user123&
+     password=pass456&
+     client_id=client789
+
+=== Resource Owner Password Credentials Flow
+
+==== Warning
+
+image::images/cancelled-rubbish.gif[Cancelled]
+
+=== Proof of Key for Code Exchange (PKCE) Flow
+
+The PKCE flow is an enhanced version of the authorization code grant that adds an additional security layer by preventing interception of the authorization code during the authentication process, primarily used for mobile and native applications.
+
+=== Proof of Key for Code Exchange (PKCE) Flow
+
+PKCE provides better security to public clients than flows earlier designed for public clients such as the Implicit grant or Resource Owner Password Credentials grant.
+
+Today, both public and confidential clients should use the PKCE flow when user interaction is required.
+
+=== Proof of Key for Code Exchange (PKCE) Flow
+
+image::images/oauth2-pkce-flow.svg[PKCE Flow: Sequence Diagram]
+
+==== Example Authorization Request
+
+     Authorization: Basic Y2xpZW50MTIzOnMzY3JldA==
+
+     GET /authorize?
+       response_type=code&
+       redirect_uri=https://example.com/callback&
+       scope=openid%20profile&
+       state=7fbc1e737993167e75f5f7940d8213aa6886591d&
+       code_challenge_method=S256&
+       code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+
+=== Proof of Key for Code Exchange (PKCE) Flow
+
+=== Example Token Request
+
+    POST /token HTTP/1.1
+    Host: example.com
+    Content-Type: application/x-www-form-urlencoded
+
+    code=a95508c60b2389b7e155bc45f90526b269ecf79b81a97&
+    client_id=client123&
+    client_secret=b2b2dae247329fac58a5904c056c78f6d72d84cbb251a&
+    redirect_uri=https%3A%2F%2Fexample.com%2Fcallback&
+    code_verifier=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&
+    grant_type=authorization_code
+
+== Pause for Questions
+
+image:images/sandler-so-sorry-to-interrupt.gif[Adam Sandler - So Sorry to Interrupt!]
+
+
+== OpenID Connect (OIDC)
+
+image::images/openid-connect-spec-index.png[OpenID Connect Specifications]
+
+=== OpenID Connect (OIDC)
+
+* OAuth2 protocol extension
+* published by the OpenID Foundation (not IETF OAauth working group)
+* Identity layer on top of OAuth
+* `openid` scope indicates that this is an OpenID Connect request
+
+=== OpenID Connect Core specification
+
+image::images/openid-connect-core-spec.png[OpenID Connect Core Specification]
+
+== OpenID Connect Terminology
+
+=== Actors
+
+==== End-User
+
+The user who is logs into the Relying Party through the Identity Provider.
+
+OAuth2 equivalent: Resource Owner
+
+=== Actors
+
+==== Identity Provider (IDP)
+
+The server that authenticates the user and provides claims about the user.
+
+OAuth2 equivalent: Authorization Server
+
+=== Actors
+
+==== Relying Party (RP)
+
+The server that relies on the IDP for authentication and obtains the user's identity.
+
+OAuth2 equivalent: Client
+
+=== ID Token
+
+The OpenID Connect ID Token is a JSON Web Token (JWT) that contains identity information about the authenticated user, such as their unique identifier and other optional claims, issued by the OpenID Connect provider during the authentication process.
+
+=== ID Token Claims
+
+==== Example
+
+     {
+       "iss": "https://auth.example.com",
+       "sub": "e9d7a94c-5213-4e4c-b2e2-71d73620d601",
+       "aud": "client123",
+       "exp": 1678934400,
+       "iat": 1678891200,
+       "auth_time": 1678889400,
+       "acr": "https://acrs.example.com/loa2",
+       "amr": ["pwd", "otp"],
+       "nonce": "ABC123XYZ",
+       "name": "John Doe",
+       "given_name": "John",
+       "family_name": "Doe",
+       "email": "johndoe@example.com",
+       "email_verified": true,
+       "picture": "https://example.com/profile_picture.jpg",
+       "locale": "en_US"
+     }
+
+=== ID Token Validation
+
+==== Validation
+
+Two options:
+
+1. validate the JWT using one of the provider's public-keys or a shared symmetric key
+2. validate the JWT using the provider's introspection endpoint
+
+=== ID Token Validation
+
+==== Claims Validation
+
+Also need to validate the claims, for example validate:
+
+* the token has not expired
+* the issuer is the expected provider endpoint
+* it is addressed to you (the audience)
+
+== Parameters
+
+OpenID Connect introduces some additional parameters, not all included in presentation.
+
+=== nonce
+
+* Randomly-generated string maintained by the client; similar to "state" parameter
+* Purpose is different from state param: associates a client session with an ID Token
+* Embedded within the ID token to provide randomness
+
+=== display
+
+* Specifies how the authorization-server displays the authorization dialogue ("the authentication and consent user interface pages") to the end-user
+* Possible values include `page`, `popup`, `touch`, `wap`(for feature-phones)
+
+=== prompt
+
+* Specifies when the authorization-server prompts the end-user for "reauthentication and consent":
+* Possible values include `none`, `login`, `consent`, `select_account`
+
+== OpenID Connect Endpoints
+
+=== Discovery Endpoint
+
+==== Example Request
+
+     Accept: application/json
+
+     GET /.well-known/openid-configuration
+
+=== Discovery Endpoint
+
+==== Example Response
+
+     HTTP/1.1 200 OK
+     Content-Type: application/json
+
+     {
+       "issuer": "https://example.com",
+       "authorization_endpoint": "https://example.com/oauth2/authorize",
+       "token_endpoint": "https://example.com/oauth2/token",
+       "userinfo_endpoint": "https://example.com/oauth2/userinfo",
+       "jwks_uri": "https://example.com/oauth2/jwks",
+       "registration_endpoint": "https://example.com/oauth2/register",
+       "scopes_supported": ["openid", "profile", "email"],
+       "response_types_supported": ["code", "id_token", "token id_token"],
+       "subject_types_supported": ["public", "pairwise"],
+       "id_token_signing_alg_values_supported": ["RS256", "HS256"],
+       "token_endpoint_auth_methods_supported": ["client_secret_basic", "client_secret_post"],
+       "claims_supported": ["sub", "name", "email"],
+       "revocation_endpoint": "https://example.com/oauth2/revoke"
+     }
+
+=== UserInfo Endpoint
+
+The OpenID Connect userinfo endpoint provides a way for clients to retrieve user information, such as profile details, using an access token.
+
+Use content-negotiation to determine the response content-type:
+
+* application/json
+* application/jwt
+* application/x-www-form-urlencoded
+
+=== UserInfo
+
+==== Example Request
+
+     Accept: application/json
+     Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
+     GET /userinfo
+
+=== UserInfo
+
+==== Example Response
+
+     {
+       "sub": "1234567890",
+       "name": "John Doe",
+       "email": "johndoe@example.com",
+       "birthdate": "1980-01-01",
+       "address": {
+         "street": "123 Main St",
+         "city": "New York",
+         "state": "NY",
+         "zip": "10001"
+       }
+     }
+
+== OpenID Connect Grants
+
+=== Authorization Code Flow
+
+This grant type is used by confidential clients to obtain an authentication code, which can then be exchanged for an ID token and access token.
+
+=== Authorization Code Flow
+
+image::images/oidc-authorization-code-flow.svg[OIDC Authorization Code Flow: Sequence Diagram]
+
+=== Refresh Token Flow
+
+OpenID Connect allows the use of refresh tokens to obtain new access tokens without user interaction. The refresh token grant allows clients to exchange a refresh token for a new access token.
+
+=== Refresh Token Flow
+
+==== Comparison with OAuth2
+
+[options="header"]
+|===
+| Feature                    | OAuth 2.0 Refresh Token Flow | OpenID Connect Refresh Token Flow
+
+| Scope-Based Access         | Yes                          | Yes
+| Offline Access             | Yes                          | Yes
+| User Authentication       | No                            | Yes
+| ID Token Refresh           | No                            | Yes
+| Refresh Token Rotation     | No                            | Yes
+| Dynamic Client Registration| No                            | Yes
+| Privilege Escalation Risk  | No                            | Mitigated
+| Integration with OIDC      | No                            | Yes
+
+|===
+
+=== Implicit Flow
+
+This grant type is primarily intended for clients implemented in a browser using JavaScript. It allows the client to obtain an ID token directly from the authentication endpoint.
+
+=== Implicit Flow
+
+==== Warning
+
+Using the OpenID Connect Implicit Flow is discouraged due to security vulnerabilities and the risk of token leakage; instead, consider utilizing the PKCE Flow as a more secure alternative for browser-based applications.
+
+=== Implicit Flow
+
+image::images/oidc-implicit-flow.svg[OIDC Implicit Grant: Sequence Diagram]
+
+=== Implicit Flow
+
+==== Example Request
+
+     GET /authorize?
+       response_type=id_token%20token
+       &client_id=client123
+       &redirect_uri=https%3A%2F%2Fexample.com%2Fcallback
+       &scope=openid%20profile%20email
+       &state=123abc
+       &nonce=xyz456
+
+=== Implicit Flow
+
+==== Example Response
+
+     HTTP/1.1 302 Found
+     Location: https://client.example.com/callback#id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6ImFhYjNiZmE3LThkNzgtNDc1Ny05NzUzLTk3MTM5MzMxNjAwOSJ9.
+       eyJzdWIiOiJlOWQ3YTk0Yy01MjEzLTRlNGMtYjJlMi03MWQ3MzYyMGQ2MDEiLCJhdWQiOiJjbGllbnQxMjMiLCJlbWFpbCI6ImpvaG5kb2VAZXhhbXBsZS5jb20iLCJpc3MiOiJodHRwczovL2F1dGguZXhhbXBsZS5jb20iLCJleHAiOjE2Nzg5MzQ0NzUsImlhdCI6MTY3ODkzMjg3NSwianRpIjoiMTIzYWJjIiwibm9uY2UiOiJ4eXo0NTYifQ.
+       pLx6Mj-hCjxkxdnYv7T3AycvyaA3-ly3eZLnADXBVvjhi8FYBhh53V5-65XKrSGQ1nb8UGfRYqjUgE6QzX-04yKY_FY7thPH5SnwYUW_7ZsrdqH2zH2uZZi8i-6teZj_8Roq6mXzobTWU0aGznCRvRy0GYu1Z6iMmBKtAdAfg4s
+       &access_token=2YotnFZFEjr1zCsicMWpAA
+       &token_type=Bearer
+       &expires_in=3600
+
+=== Implicit Flow
+
+==== Warning
+
+image::images/cancelled-rubbish.gif[Cancelled]
+
+=== Hybrid Flow
+
+The hybrid flow combines elements of both the authorization code grant and the implicit grant. It enables the client to obtain an authorization code and/or ID token depending on the requested response type.
+
+=== Hybrid Flow
+
+==== Warning
+
+Caution is advised when using the OpenID Connect Hybrid Flow due to increased complexity and limited advantages compared to other flows; it is recommended to consider utilizing the PKCE Flow as a more secure and streamlined alternative for native and mobile applications.
+
+=== Hybrid Flow
+
+image::images/oidc-implicit-flow.svg[OIDC Implicit Grant: Sequence Diagram]
+
+=== Hybrid Flow
+
+==== Warning
+
+image::images/cancelled-rubbish.gif[Cancelled]
+
+=== PKCE Flow
+
+OpenID Connect allows the use of refresh tokens to obtain new access tokens without user interaction. The refresh token grant allows clients to exchange a refresh token for a new access token.
+
+=== PKCE Flow
+
+image::images/oidc-pkce-flow.svg[OIDC PKCE Grant: Sequence Diagram]
+
+=== PKCE Flow
+
+==== Example Confidential Client Authentication Request
+
+     Authorization: Basic Y2xpZW50MTIzOnMzY3JldA==
+
+     GET /authorize?
+       response_type=code&
+       redirect_uri=https%3A%2F%2Fclient.example.com%2Fcallback&
+       scope=openid%20profile&
+       state=abc123&
+       code_challenge=qDx5zrK7bR1N23Y67RkPaUftTtbyhzGZOsW1H14GweU&
+       code_challenge_method=S256&
+       nonce=xyz456
+
+=== PKCE Flow
+
+==== Example Confidential Client Authentication Response
+
+     HTTP/1.1 302 Found
+     Location: https://client.example.com/callback?code=authcode123&state=abc123
+
+=== PKCE Flow
+
+==== Example Public Client Authentication Request
+
+     GET /authorize?
+       response_type=code&
+       client_id=my-awesome-client-123&
+       redirect_uri=https%3A%2F%2Fclient.example.com%2Fcallback&
+       scope=openid%20profile&
+       state=abc123&
+       code_challenge=qDx5zrK7bR1N23Y67RkPaUftTtbyhzGZOsW1H14GweU&
+       code_challenge_method=S256&
+       nonce=xyz456
+
+=== PKCE Flow
+
+==== Example Public Client Authentication Response
+
+     HTTP/1.1 302 Found
+     Location: https://client.example.com/callback?code=authcode123&state=abc123
+
+=== PKCE Flow
+
+==== Example Token Request
+
+     POST /token HTTP/1.1
+     Host: authorization-server.com
+     Content-Type: application/x-www-form-urlencoded
+
+     grant_type=authorization_code&
+     code=authcode123&
+     redirect_uri=https%3A%2F%2Fclient.example.com%2Fcallback&
+     client_id=my-awesome-client-123&
+     code_verifier=qDx5zrK7bR1N23Y67RkPaUftTtbyhzGZOsW1H14GweU
+
+== OpenID Connect Logout
+
+=== RP-Initiated Logout
+
+This specification extends the logout functionality by allowing the relying party to initiate the logout process for a user. It defines the end_session_endpoint that the client can use to send logout requests directly to the OpenID Provider (OP).
+
+=== Session Management
+
+This specification defines a session management mechanism for OpenID Connect. It introduces the prompt=logout parameter that can be included in authentication requests to signal the need for the user to be logged out at the end of the session.
+
+=== Front-Channel Logout
+
+This specification describes a front-channel logout mechanism for OpenID Connect. It defines how the identity provider can notify the relying party (client application) of a user's logout by sending logout requests directly to the client's registered logout URIs.
+
+=== Back-Channel Logout
+
+This specification outlines a back-channel logout mechanism for OpenID Connect. It defines a secure logout notification process where the identity provider sends logout requests to the relying party's registered logout endpoint via direct communication between the providers.
+
+== OpenID Connect Review
+
+* Client creates Authorization/Authentication request that includes `openid` scope
+* Authorization server Token endpoint response includes an `id_token` JWT in addition to the `access_token` (opaque or JWT)
+* The client validates the ID token, and can use the JWT claims as it sees fit (decentralized SSO)
+
+=== OpenID Connect Review
+
+image:images/OpenID_Connect_OAuth2.png[Freddy unmasking OpenID Connect (it is OAuth2!),320]
+
+== Parting Comments
+
+* Consider OAuth2; consider OpenID Connect if you need SSO.
+* Always pre-register redirect URLs if app requires user interaction.
+* Use the PKCE grant for either confidential or public clients that require user interaction.
+* Use the client-credentials grant for any machine-to-machine applications.
+
+=== Parting Comments
+
+* Consider sending only opaque access-tokens to third-party clients.
+* Develop organizational strategy for distributed logout.
+* Review JWT validation procedures and algorithmic selections.
+* Review JWK rotation procedures and security implications (key management policies).
+
+[.columns]
+
+== Thank You
+
+[.column]
+image:images/congratulations.gif[Congratulations - Silicon Valley]
+
+[.column]
+image:images/jeb-bush-please-clap.gif[Jeb Bush - Please Clap]
+
+[.column]
+image:images/roman-clapping.gif[Roman clapping]

@@ -1,0 +1,34 @@
+= OAuth2 Authorization Code Grant
+
+[plantuml, authorization_code_grant]
+----
+@startuml
+actor User
+participant "Client Application" as Client
+participant "Authorization Server" as AuthServer
+participant "Resource Owner" as Owner
+participant "Resource Server" as Server
+
+User -> Client: 1. Initiates Authorization
+Client -> AuthServer: 2. Sends Authorization Request
+AuthServer --> User: 3. Presents Authorization Page
+User --> AuthServer: 4. Enters Credentials and Approves Authorization
+AuthServer --> Client: 5. Sends Authorization Code
+Client -> AuthServer: 6. Exchanges Authorization Code for Access Token
+AuthServer --> Client: 7. Sends Access Token
+Client -> Server: 8. Requests Protected Resource
+Server --> Client: 9. Sends Protected Resource
+@enduml
+----
+
+== Authorization Code Flow
+
+1. The User initiates the authorization process by accessing the Client Application.
+2. The Client sends an authorization request to the Authorization Server.
+3. The Authorization Server presents an authorization page to the User.
+4. The User enters their credentials and approves the authorization request.
+5. The Authorization Server sends an authorization code to the Client.
+6. The Client exchanges the authorization code for an access token by sending a token request to the Authorization Server.
+7. The Authorization Server sends an access token to the Client.
+8. The Client requests a protected resource from the Resource Server using the access token.
+9. The Resource Server sends the protected resource to the Client.
